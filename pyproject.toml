@@ -1,8 +1,9 @@
 [project]
 name = "tiny_recursive_models"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.0.1"
+description = "Less is More: Recursive Reasoning with Tiny Networks"
 readme = "README.md"
+authors = [{ name = "Alexia Jolicoeur-Martineau" }]
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "adam-atan2>=0.0.3",

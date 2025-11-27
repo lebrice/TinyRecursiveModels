@@ -35,14 +35,14 @@ wandb login YOUR-LOGIN # login if you want the logger to sync results to your We
 
 ```bash
 # ARC-AGI-1
-python -m dataset.build_arc_dataset \
+uv run python tiny_recursive_models/dataset/build_arc_dataset.py \
   --input-file-prefix kaggle/combined/arc-agi \
   --output-dir data/arc1concept-aug-1000 \
   --subsets training evaluation concept \
   --test-set-name evaluation
 
 # ARC-AGI-2
-python -m dataset.build_arc_dataset \
+uv run python tiny_recursive_models/dataset/build_arc_dataset.py \
   --input-file-prefix kaggle/combined/arc-agi \
   --output-dir data/arc2concept-aug-1000 \
   --subsets training2 evaluation2 concept \
@@ -51,10 +51,10 @@ python -m dataset.build_arc_dataset \
 ## Note: You cannot train on both ARC-AGI-1 and ARC-AGI-2 and evaluate them both because ARC-AGI-2 training data contains some ARC-AGI-1 eval data
 
 # Sudoku-Extreme
-python dataset/build_sudoku_dataset.py --output-dir data/sudoku-extreme-1k-aug-1000  --subsample-size 1000 --num-aug 1000  # 1000 examples, 1000 augments
+uv run python tiny_recursive_models/dataset/build_sudoku_dataset.py --output-dir data/sudoku-extreme-1k-aug-1000  --subsample-size 1000 --num-aug 1000  # 1000 examples, 1000 augments
 
 # Maze-Hard
-python dataset/build_maze_dataset.py # 1000 examples, 8 augments
+uv run python tiny_recursive_models/dataset/build_maze_dataset.py # 1000 examples, 8 augments
 ```
 
 ## Experiments
@@ -62,14 +62,12 @@ python dataset/build_maze_dataset.py # 1000 examples, 8 augments
 ### ARC-AGI-1 (assuming 4 H-100 GPUs):
 
 ```bash
-run_name="pretrain_att_arc1concept_4"
-torchrun --nproc-per-node 4 --rdzv_backend=c10d --rdzv_endpoint=localhost:0 --nnodes=1 pretrain.py \
+uv run torchrun --nproc-per-node 4 --rdzv_backend=c10d --rdzv_endpoint=localhost:0 --nnodes=1 tiny_recursive_models/pretrain.py \
 arch=trm \
 data_paths="[data/arc1concept-aug-1000]" \
 arch.L_layers=2 \
 arch.H_cycles=3 arch.L_cycles=4 \
-+run_name=${run_name} ema=True
-
++run_name=pretrain_att_arc1concept_4 ema=True
 ```
 
 *Runtime:* ~3 days
@@ -77,14 +75,12 @@ arch.H_cycles=3 arch.L_cycles=4 \
 ### ARC-AGI-2 (assuming 4 H-100 GPUs):
 
 ```bash
-run_name="pretrain_att_arc2concept_4"
-torchrun --nproc-per-node 4 --rdzv_backend=c10d --rdzv_endpoint=localhost:0 --nnodes=1 pretrain.py \
+uv run torchrun --nproc-per-node 4 --rdzv_backend=c10d --rdzv_endpoint=localhost:0 --nnodes=1 tiny_recursive_models/pretrain.py \
 arch=trm \
 data_paths="[data/arc2concept-aug-1000]" \
 arch.L_layers=2 \
 arch.H_cycles=3 arch.L_cycles=4 \
-+run_name=${run_name} ema=True
-
++run_name=pretrain_att_arc2concept_4 ema=True
 ```
 
 *Runtime:* ~3 days
@@ -93,7 +89,7 @@ arch.H_cycles=3 arch.L_cycles=4 \
 
 ```bash
 run_name="pretrain_mlp_t_sudoku"
-python pretrain.py \
+uv run python tiny_recursive_models/pretrain.py \
 arch=trm \
 data_paths="[data/sudoku-extreme-1k-aug-1000]" \
 evaluators="[]" \
@@ -105,7 +101,7 @@ arch.H_cycles=3 arch.L_cycles=6 \
 +run_name=${run_name} ema=True
 
 run_name="pretrain_att_sudoku"
-python pretrain.py \
+uv run python tiny_recursive_models/pretrain.py \
 arch=trm \
 data_paths="[data/sudoku-extreme-1k-aug-1000]" \
 evaluators="[]" \
@@ -122,7 +118,7 @@ arch.H_cycles=3 arch.L_cycles=6 \
 
 ```bash
 run_name="pretrain_att_maze30x30"
-torchrun --nproc-per-node 4 --rdzv_backend=c10d --rdzv_endpoint=localhost:0 --nnodes=1 pretrain.py \
+torchrun --nproc-per-node 4 --rdzv_backend=c10d --rdzv_endpoint=localhost:0 --nnodes=1 tiny_recursive_models/pretrain.py \
 arch=trm \
 data_paths="[data/maze-30x30-hard-1k]" \
 evaluators="[]" \
